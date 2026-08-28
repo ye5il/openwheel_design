@@ -1,4 +1,4 @@
-from engine.database import get_engine
+from .database import get_engine
 
 COOLING_REQUIRED_HP = {
     "water_pump_flow_lpm": 40,
@@ -6,12 +6,15 @@ COOLING_REQUIRED_HP = {
     "coolant_capacity_liters": 3
 }
 
-def estimate_heat_rejection(engine_name, power_hp, efficiency=0.25):
+def estimate_heat_rejection(engine_name, power_hp, efficiency=0.30,
+                             coolant_fraction=0.30):
     eng = get_engine(engine_name)
     if not eng:
         return None
-    
-    heat_power_kw = power_hp * 0.7457 * efficiency
+
+    shaft_power_kw = power_hp * 0.7457
+    fuel_power_kw = shaft_power_kw / efficiency
+    heat_power_kw = fuel_power_kw * coolant_fraction
     return {
         "engine_name": eng["name"],
         "engine_power_hp": power_hp,

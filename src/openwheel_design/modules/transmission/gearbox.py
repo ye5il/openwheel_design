@@ -33,10 +33,30 @@ def calculate_rpm_drop(ratio_1, ratio_2, peak_torque_rpm):
         "recommendation": "shift earlier" if ratio_drop > 15 else "good"
     }
 
-def optimize_gear_ratios(track_lap_time_s, corner_exit_kmh, wheel_radius_mm):
+def optimize_gear_ratios(max_rpm, num_gears=6, first_ratio=3.5,
+                          top_ratio=0.9, final_drive=3.0,
+                          tire_radius_mm=260):
+    if num_gears < 2:
+        return {"error": "Need at least 2 gears"}
+
+    ratios = []
+    for i in range(num_gears):
+        r = first_ratio * (top_ratio / first_ratio) ** (i / (num_gears - 1))
+        ratios.append(round(r, 3))
+
+    tire_radius_m = tire_radius_mm / 1000.0
+    speeds = []
+    for r in ratios:
+        omega_wheel = (max_rpm * 2 * math.pi / 60) / (r * final_drive)
+        v_kmh = omega_wheel * tire_radius_m * 3.6
+        speeds.append(round(v_kmh, 1))
+
     return {
-        "optimized": True,
-        "tip": "Use geometric progression based on corner exit speed"
+        "num_gears": num_gears,
+        "ratios": ratios,
+        "final_drive": final_drive,
+        "max_speed_per_gear_kmh": speeds,
+        "progression": "geometric"
     }
 
 def check_rpm_in_torque_band(rpm, peak_torque_rpm, bandwidth=2000):

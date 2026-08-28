@@ -6,9 +6,13 @@ G_ALUMINUM = 27000
 def calculate_arb_stiffness(bar_diameter_mm, bar_length_mm, arm_length_mm, material="steel"):
     G = G_STEEL if material == "steel" else G_ALUMINUM
     J = math.pi * (bar_diameter_mm ** 4) / 32
-    K = (G * J) / (bar_length_mm * arm_length_mm ** 2)
+    # K_rad = torque per radian of twist = G*J / bar_length (N*mm/rad)
+    # Force at arm tip per radian = K_rad / arm_length^2
+    # Convert per-radian to per-degree: divide by (pi/180)
+    K_per_rad = (G * J) / (bar_length_mm * arm_length_mm ** 2)
+    K_per_deg = K_per_rad * math.pi / 180
     return {
-        "stiffness_N_mm_per_deg": round(K / 57.3, 2),
+        "stiffness_N_mm_per_deg": round(K_per_deg, 2),
         "bar_diameter_mm": bar_diameter_mm,
         "bar_length_mm": bar_length_mm,
         "arm_length_mm": arm_length_mm,

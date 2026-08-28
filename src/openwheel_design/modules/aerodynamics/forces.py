@@ -34,8 +34,7 @@ def calculate_aero_at_speeds(CL, CD, area_m2, speeds=None):
 
 def estimate_cornering_speed(mechanical_grip_N, aero_df_N, corner_radius_m, vehicle_mass_kg):
     total_grip = mechanical_grip_N + aero_df_N
-    mu = 1.5
-    v = math.sqrt(mu * total_grip * corner_radius_m / vehicle_mass_kg)
+    v = math.sqrt(total_grip * corner_radius_m / vehicle_mass_kg)
     return round(v * 3.6, 1)
 
 def estimate_power_loss_from_drag(drag_N, speed_kmh):

@@ -15,9 +15,12 @@ def check_tire_temperature(temp_C, compound="medium"):
     return {"temp_C": temp_C, "status": status, "window": window}
 
 def estimate_cold_pressure(hot_bar, ambient_C=20, operating_C=90):
+    ATM = 1.01325
     T_cold = ambient_C + 273.15
     T_hot = operating_C + 273.15
-    return round(hot_bar * T_cold / T_hot, 2)
+    hot_abs = hot_bar + ATM
+    cold_abs = hot_abs * T_cold / T_hot
+    return round(cold_abs - ATM, 2)
 
 def check_tire_pressure(bar, axle="front"):
     ranges = {"front": (1.1, 1.8), "rear": (0.9, 1.6)}

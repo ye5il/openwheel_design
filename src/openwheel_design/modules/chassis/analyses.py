@@ -1,7 +1,7 @@
-from chassis.materials import get_material, calculate_tube_weight
-from chassis.geometry import parse_tube_spec
-from chassis.constraints import check_fs_compliance
-from utils.constants import GRAVITY, CHROMOLY_YIELD
+from .materials import get_material, calculate_tube_weight
+from .geometry import parse_tube_spec
+from .constraints import check_fs_compliance
+from ..utils.constants import GRAVITY
 
 def analyze_weight(tubes, material="4130"):
     mat = get_material(material)
@@ -51,7 +51,7 @@ def reverse_engineer_weight(target_weight, material="4130", tube_od_mm=25.4):
                 "weight_per_m": weight_per_m,
                 "total_length_mm": required_length
             })
-        except:
+        except (ValueError, KeyError, ZeroDivisionError):
             pass
     
     return {
@@ -83,7 +83,7 @@ def reverse_engineer_target(
                         "weight_per_m": weight_per_m,
                         "total_length_m": total_length
                     })
-            except:
+            except (ValueError, KeyError, ZeroDivisionError):
                 pass
     
     results.sort(key=lambda x: x["weight_per_m"])
@@ -95,15 +95,19 @@ def reverse_engineer_target(
         "configurations": results[:10]
     }
 
-def analyze_stress(force_N, area_mm2):
+def analyze_stress(force_N, area_mm2, material="4130"):
+    mat = get_material(material)
+    if not mat:
+        raise ValueError(f"Unknown material: {material}")
+    yield_strength = mat["yield_strength"]
     stress_MPa = force_N / area_mm2
     return {
         "force_N": force_N,
         "area_mm2": area_mm2,
         "stress_MPa": stress_MPa,
-        "yield_check": stress_MPa < CHROMOLY_YIELD,
-        "yield_strength_MPa": CHROMOLY_YIELD,
-        "safety_factor": CHROMOLY_YIELD / stress_MPa if stress_MPa > 0 else float('inf')
+        "yield_check": stress_MPa < yield_strength,
+        "yield_strength_MPa": yield_strength,
+        "safety_factor": yield_strength / stress_MPa if stress_MPa > 0 else float('inf')
     }
 
 def optimize_weight(target_weight, max_cost=None):
@@ -121,7 +125,7 @@ def optimize_weight(target_weight, max_cost=None):
                     "wall": cfg["tube_wall"],
                     "total_length_m": cfg["total_length_m"]
                 })
-        except:
+        except (ValueError, KeyError, ZeroDivisionError):
             pass
     
     results.sort(key=lambda x: x.get("od", 0))
@@ -132,12 +136,10 @@ def optimize_weight(target_weight, max_cost=None):
     }
 
 def optimize_cost(target_performance, budget):
-    return {
-        "target": target_performance,
-        "budget": budget,
-        "recommendation": "Use 4130 Chromeoly - best cost/strength ratio",
-        "note": "See materials Database for current pricing"
-    }
+    raise NotImplementedError(
+        "optimize_cost is a stub with no real cost model. "
+        "Needs material pricing data to produce valid results."
+    )
 
 def calculate_bending_stress(M, c, I):
     stress = (M * c) / I
@@ -147,7 +149,7 @@ def calculate_section_modulus(d, t):
     from math import pi
     Do = d
     Di = d - 2*t
-    I = pi/32 * (Do**4 - Di**4)
+    I = pi/64 * (Do**4 - Di**4)
     c = Do/2
     return I/c
 

@@ -11,7 +11,7 @@ def check_camber(camber_deg, axle="front"):
         "value_deg": camber_deg,
         "sign": "negative (correct)" if camber_deg < 0 else "positive (unusual)",
         "in_typical_range": lo <= camber_deg <= hi,
-        "effect": "cornering grip ↑" if camber_deg < 0 else "straight grip only"
+        "effect": "cornering grip +" if camber_deg < 0 else "straight grip only"
     }
 
 def check_toe(toe_mm, axle="front"):
@@ -21,7 +21,7 @@ def check_toe(toe_mm, axle="front"):
         "value_mm": toe_mm,
         "sign": "toe-in (stable)" if toe_mm > 0 else "toe-out (agile)",
         "in_typical_range": lo <= toe_mm <= hi,
-        "effect": "stability ↑, turn-in ↓" if toe_mm > 0 else "turn-in ↑, stability ↓"
+        "effect": "stability +, turn-in -" if toe_mm > 0 else "turn-in +, stability -"
     }
 
 def check_caster(caster_deg):
@@ -29,17 +29,21 @@ def check_caster(caster_deg):
     return {
         "value_deg": caster_deg,
         "in_typical_range": lo <= caster_deg <= hi,
-        "effect": "self-centering ↑, steering feedback ↑"
+        "effect": "self-centering +, steering feedback +"
     }
 
 def calculate_ackermann(wheelbase_mm, track_width_mm, turn_radius_mm):
-    inner_angle = math.degrees(math.atan(wheelbase_mm / turn_radius_mm))
-    outer_angle = math.degrees(math.atan(wheelbase_mm / (turn_radius_mm + track_width_mm)))
+    inner_radius = turn_radius_mm - track_width_mm / 2
+    outer_radius = turn_radius_mm + track_width_mm / 2
+    inner_angle = math.degrees(math.atan(wheelbase_mm / inner_radius))
+    outer_angle = math.degrees(math.atan(wheelbase_mm / outer_radius))
+    ackermann_pct = (inner_angle - outer_angle) / inner_angle * 100
+    ideal = ackermann_pct > 0 and inner_angle > outer_angle
     return {
         "inner_angle_deg": round(inner_angle, 2),
         "outer_angle_deg": round(outer_angle, 2),
-        "ackermann_percent": round((inner_angle - outer_angle) / inner_angle * 100, 1),
-        "ideal": True
+        "ackermann_percent": round(ackermann_pct, 1),
+        "ideal": ideal
     }
 
 def calculate_scrub_radius(kingpin_inclination_deg, caster_deg, wheel_offset_mm):

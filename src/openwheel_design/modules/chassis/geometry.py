@@ -1,4 +1,8 @@
-from utils.constants import FS_MAX_LENGTH, FS_MAX_WIDTH
+from ..utils.constants import TEAM_TARGET_LENGTH, TEAM_TARGET_WIDTH
+
+# These are team design targets, not FSAE mandated limits
+FS_MAX_LENGTH = TEAM_TARGET_LENGTH
+FS_MAX_WIDTH = TEAM_TARGET_WIDTH
 
 TUBE_DIAMETERS = [
     "19.05x1.2", "19.05x1.6", "22.22x1.2", "22.22x1.6", 
@@ -29,7 +33,7 @@ def get_tube_wall(spec):
     return parse_tube_spec(spec)["wall"]
 
 def calculate_standard_weight(od_mm, wall_mm, length_mm, material_type="4130"):
-    from chassis.materials import calculate_tube_weight
+    from .materials import calculate_tube_weight
     return calculate_tube_weight(od_mm, wall_mm, length_mm, material_type)
 
 def check_fs_dimensions(length_mm, width_mm, height_mm=None):

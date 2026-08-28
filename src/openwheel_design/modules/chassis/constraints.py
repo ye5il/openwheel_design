@@ -1,7 +1,12 @@
-from utils.constants import (
-    FS_MIN_WEIGHT, FS_MAX_LENGTH, FS_MAX_WIDTH,
+from ..utils.constants import (
+    TEAM_TARGET_WEIGHT, TEAM_TARGET_LENGTH, TEAM_TARGET_WIDTH,
     FS_MAX_DISPLACEMENT, FS_RESTRICTOR
 )
+
+# These are team design targets, not FSAE mandated limits
+FS_MIN_WEIGHT = TEAM_TARGET_WEIGHT
+FS_MAX_LENGTH = TEAM_TARGET_LENGTH
+FS_MAX_WIDTH = TEAM_TARGET_WIDTH
 
 FS_CONSTRAINTS = {
     "weight": {

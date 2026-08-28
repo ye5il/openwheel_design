@@ -1,4 +1,4 @@
-from utils.constants import GRAVITY
+from ..utils.constants import GRAVITY
 
 def estimate_endurance_fuel(engine_name, lap_time_s, num_laps=22):
     avg_consumption_per_lap_L = 0.25

@@ -1,12 +1,12 @@
-from engine.database import get_engine, calculate_power_to_weight, list_engines
-from engine.constraints import (
+from .database import get_engine, calculate_power_to_weight, list_engines
+from .constraints import (
     check_engine_displacement,
     check_intake_restrictor,
     calculate_restricted_power,
     estimate_power_with_restrictor
 )
-from engine.cooling import estimate_heat_rejection, check_cooling_system
-from utils.constants import GRAVITY
+from .cooling import estimate_heat_rejection, check_cooling_system
+from ..utils.constants import GRAVITY
 
 def analyze_engine(engine_name, vehicle_weight_kg=None):
     eng = get_engine(engine_name)
@@ -34,7 +34,7 @@ def analyze_engine(engine_name, vehicle_weight_kg=None):
     return result
 
 def reverse_engineer_engine(target_power_hp, criteria="min_weight"):
-    from engine.database import ENGINES
+    from .database import ENGINES
     
     results = []
     for key, eng in ENGINES.items():
@@ -66,7 +66,7 @@ def analyze_cooling(engine_name, power_hp):
     return check_cooling_system(engine_name, power_hp)
 
 def optimize_engine_choice(vehicle_weight_kg, optimization_target="power_to_weight"):
-    from engine.database import ENGINES
+    from .database import ENGINES
     
     results = []
     for key, eng in ENGINES.items():
@@ -94,33 +94,39 @@ def optimize_engine_choice(vehicle_weight_kg, optimization_target="power_to_weig
 
 import math
 
-def calculate_0_100_estimation(engine_name, vehicle_weight_kg, drivetrain_loss=0.15):
-    import math
+def calculate_0_100_estimation(engine_name, vehicle_weight_kg,
+                                drivetrain_loss=0.15,
+                                gear_ratio=2.5, final_drive=3.0,
+                                tire_radius_m=0.26, mu=1.5):
     eng = get_engine(engine_name)
     if not eng:
         return None
-    
-    wheel_radius_m = 0.254
+
     torque = eng["torque_Nm"]
-    wheel_torque = torque * (1 - drivetrain_loss)
-    
-    force_n = wheel_torque / wheel_radius_m
-    v_target = 100 / 3.6
-    
-    t = (vehicle_weight_kg * v_target) / force_n
-    
+    drivetrain_eff = 1.0 - drivetrain_loss
+    wheel_torque = torque * gear_ratio * final_drive * drivetrain_eff
+    tractive_force = wheel_torque / tire_radius_m
+
+    traction_limit = mu * vehicle_weight_kg * GRAVITY
+    tractive_force = min(tractive_force, traction_limit)
+
+    v_target = 100.0 / 3.6
+    dt = 0.01
+    v = 0.0
+    t = 0.0
+
+    while v < v_target:
+        a = tractive_force / vehicle_weight_kg
+        v += a * dt
+        t += dt
+
     return {
         "engine": eng["name"],
-        "estimated_0_100_kmh": round(t, 1),
-        "wheel_radius_m": wheel_radius_m,
-        "note": "Simplified constant torque"
-    }
-    
-    return {
-        "engine": eng["name"],
-        "estimated_0_100_kmh": round(t, 1),
-        "wheel_radius_m": wheel_radius_m,
-        "note": "Numerical integration"
+        "estimated_0_100_kmh": round(t, 2),
+        "tire_radius_m": tire_radius_m,
+        "gear_ratio": gear_ratio,
+        "final_drive": final_drive,
+        "note": "Stepwise integration, single gear, traction limited"
     }
 
 def analyze_performance(

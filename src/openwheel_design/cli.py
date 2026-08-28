@@ -1,26 +1,20 @@
 #!/usr/bin/env python3
 import sys
 import argparse
-from chassis.analyses import analyze_weight, reverse_engineer_weight, optimize_weight, analyze_stress
-from chassis.constraints import check_fs_compliance, full_fs_compliance_check
-from chassis.materials import list_materials, get_material
-from chassis.geometry import list_tube_sizes, check_fs_dimensions
-from chassis.safety import calculate_rollbar_force, calculate_harness_force
-from engine.database import list_engines, get_engine, get_engine_specs
-from engine.analyses import analyze_engine, optimize_engine_choice, analyze_performance
-import suspension
-import aerodynamics
-import tires
-import dynamics
-import scoring
-import transmission
-import brakes
-import fuel
-import data_log
-import lap_sim
-import reporting
-import ev_system
-from engine.constraints import check_engine_displacement, check_intake_restrictor
+from .modules.chassis.analyses import analyze_weight, reverse_engineer_weight, optimize_weight, analyze_stress
+from .modules.chassis.constraints import check_fs_compliance, full_fs_compliance_check
+from .modules.chassis.materials import list_materials, get_material
+from .modules.chassis.geometry import list_tube_sizes, check_fs_dimensions
+from .modules.chassis.safety import calculate_rollbar_force, calculate_harness_force
+from .modules.engine.database import list_engines, get_engine, get_engine_specs
+from .modules.engine.analyses import analyze_engine, optimize_engine_choice, analyze_performance
+from .modules import suspension
+from .modules import aerodynamics
+from .modules import tires
+from .modules import dynamics
+from .modules import scoring
+from .modules import brakes
+from .modules.engine.constraints import check_engine_displacement, check_intake_restrictor
 
 def cmd_chassis_analyze(args):
     tubes = [(args.tube_od, args.wall, args.length)] if args.length else [(args.tube_od, args.wall)]
@@ -81,7 +75,7 @@ def cmd_fs_check(args):
     print(f"\n=== FSAE Compliance ===")
     print(f"Passed: {result['passed']}")
     for check, data in result['checks'].items():
-        status = "✓" if data['compliant'] else "✗"
+        status = "[OK]" if data['compliant'] else "[FAIL]"
         print(f"  {check}: {data['value']} (max: {data['constraint']}) {status}")
 
 def main():
@@ -233,7 +227,7 @@ def main():
     p_fs_full.add_argument("--rollbar-wall", type=float, default=2.4)
     p_fs_full.add_argument("--cockpit-width", type=float, default=350)
     p_fs_full.add_argument("--cockpit-height", type=float, default=580)
-    p_fs_full.set_defaults(func=lambda args: print(chassis.full_fs_compliance_check({
+    p_fs_full.set_defaults(func=lambda args: print(full_fs_compliance_check({
         "weight": args.weight, "length": args.length, "width": args.width,
         "displacement": args.displacement, "restrictor": args.restrictor,
         "fuel_tank": args.fuel_tank, "rollbar_od": args.rollbar_od,

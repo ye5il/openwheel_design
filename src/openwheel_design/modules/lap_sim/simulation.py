@@ -7,12 +7,12 @@ TRACK_TEMPLATES = {
     "endurance_fs": {"length_m": 1000, "radius_m": 40, "figure8": False},
 }
 
-def estimate_energy_consumption(speed_profile, mass_kg, drag_CD=1.5, area_m2=1.2):
-    total_kWh = 0
+def estimate_energy_consumption(speed_profile, mass_kg, drag_CD=1.5, area_m2=1.2, dt_seconds=1.0):
+    total_energy_kWh = 0
     for speed in speed_profile:
-        power = calculate_power_at_speed(speed, mass_kg, drag_CD, area_m2)
-        total_kWh += power
-    return round(total_kWh, 2)
+        power_kW = calculate_power_at_speed(speed, mass_kg, drag_CD, area_m2)
+        total_energy_kWh += power_kW * (dt_seconds / 3600)
+    return round(total_energy_kWh, 4)
 
 def calculate_power_at_speed(speed_kmh, mass_kg, drag_CD=1.5, area_m2=1.2):
     v = speed_kmh / 3.6
@@ -24,26 +24,10 @@ def calculate_power_at_speed(speed_kmh, mass_kg, drag_CD=1.5, area_m2=1.2):
     return round((aero_power + roll_power) / 1000, 2)
 
 def simulate_lap(track_name, vehicle_params):
-    track = TRACK_TEMPLATES.get(track_name)
-    if not track:
-        return None
-    
-    mass = vehicle_params["mass_kg"]
-    power = vehicle_params["max_power_kW"]
-    drag = vehicle_params.get("drag_CD", 1.5)
-    area = vehicle_params.get("frontal_area_m2", 1.2)
-    
-    avg_speed_kmh = track["length_m"] / 60
-    avg_power = calculate_power_at_speed(avg_speed_kmh, mass, drag, area)
-    lap_time = 60
-    
-    return {
-        "track": track_name,
-        "track_length_m": track["length_m"],
-        "estimated_lap_time_s": lap_time,
-        "avg_power_kW": avg_power,
-        "note": "Simplified estimation"
-    }
+    raise NotImplementedError(
+        "simulate_lap is a placeholder and does not produce valid results. "
+        "It will be replaced by the quasi-steady-state (QSS) lap simulation engine."
+    )
 
 def calculate_range(kWh_available, track_length_km, num_laps, power_per_lap_kWh):
     total = track_length_km * num_laps

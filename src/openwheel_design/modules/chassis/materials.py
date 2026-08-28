@@ -1,4 +1,6 @@
-from utils.constants import (
+import math
+
+from ..utils.constants import (
     STEEL_DENSITY, ALUMINUM_DENSITY, CARBON_FIBER_DENSITY,
     CHROMOLY_YIELD, CHROMOLY_ULTIMATE, AL7075_YIELD, AL7075_ULTIMATE, CF_TENSILE,
     E_STEEL, E_ALUMINUM, E_CF_TOW
@@ -28,6 +30,7 @@ MATERIALS = {
     "carbon_fiber": {
         "name": "Carbon Fiber Prepreg",
         "density": CARBON_FIBER_DENSITY,
+        "yield_strength": 600,
         "tensile_strength": CF_TENSILE,
         "youngs_modulus": E_CF_TOW,
         "poisson": 0.28,
@@ -61,7 +64,7 @@ def calculate_tube_weight(od_mm, wall_mm, length_mm, material):
     if inner_radius <= 0:
         raise ValueError("Wall thickness too large for given OD")
     
-    area = 3.14159 * (outer_radius**2 - inner_radius**2)
+    area = math.pi * (outer_radius**2 - inner_radius**2)
     volume = area * length
     
     return {

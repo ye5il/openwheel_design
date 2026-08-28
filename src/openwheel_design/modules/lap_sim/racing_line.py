@@ -46,12 +46,21 @@ def calculate_theoretical_best_theoretical_lap(track_m, mass_kg, max_power_kW):
 class RacingLineOptimizer:
     def __init__(self, track_data):
         self.track = track_data
-    
+
     def calculate_optimal_racing_line(self):
-        return {"optimized": True, "racing_line": "apex"}
-    
+        raise NotImplementedError(
+            "calculate_optimal_racing_line is a stub. "
+            "Will be connected to the QSS lap simulation engine."
+        )
+
     def identify_slow_sectors(self):
-        return {"slow_sectors": []}
-    
-    def suggest_Improvements(self):
-        return {"suggestions": []}
+        raise NotImplementedError(
+            "identify_slow_sectors is a stub. "
+            "Will be connected to the QSS lap simulation engine."
+        )
+
+    def suggest_improvements(self):
+        raise NotImplementedError(
+            "suggest_improvements is a stub. "
+            "Will be connected to the QSS lap simulation engine."
+        )

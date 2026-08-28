@@ -10,7 +10,7 @@ def calculate_driveshaft_torque(max_torque_Nm, safety_factor=2.5):
 def calculate_critical_speed(shaft_diameter_mm, length_mm, material="steel"):
     E = 207000 if material == "steel" else 70000
     rho = 7850 if material == "steel" else 2700
-    I = math.pi * shaft_diameter_mm**4 / 32
+    I = math.pi * shaft_diameter_mm**4 / 64
     term = E * I / (rho * length_mm**4) * 1000
     n_crit = 30 * term**0.5 / math.pi
     return {

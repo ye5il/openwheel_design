@@ -1,9 +1,10 @@
+from .events import MAX_POINTS
+
 def identify_weak_events(scores_dict):
     max_loss = {}
     for event, points in scores_dict.items():
-        max_pts = {"acceleration": 75, "skidpad": 75, "autocross": 125, 
-                  "endurance": 275, "efficiency": 100}.get(event, 0)
-        if max_pts > 0:
+        max_pts = MAX_POINTS.get(event, 0)
+        if max_pts > 0 and event != "total":
             max_loss[event] = max_pts - points
     sorted_events = sorted(max_loss.items(), key=lambda x: x[1], reverse=True)
     return sorted_events[:3]

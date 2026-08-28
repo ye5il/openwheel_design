@@ -1,5 +1,7 @@
 import math
 
+from .forces import calculate_downforce, calculate_drag
+
 WING_PROFILES = {
     "NACA_0012": {"CL_per_deg": 0.095, "CD_base": 0.008, "stall_deg": 16},
     "NACA_2412": {"CL_per_deg": 0.100, "CD_base": 0.009, "stall_deg": 14},

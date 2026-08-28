@@ -1,4 +1,4 @@
-from utils.constants import GRAVITY
+from ..utils.constants import GRAVITY
 
 ROLLCAGE_MIN_HEIGHT = 50
 
